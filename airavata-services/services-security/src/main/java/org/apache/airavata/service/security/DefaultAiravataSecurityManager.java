@@ -252,7 +252,7 @@ public class DefaultAiravataSecurityManager implements AiravataSecurityManager {
     }
 
     @Override
-    public AuthzToken getUserManagementServiceAccountAuthzToken(String gatewayId) throws AiravataSecurityException {
+    public AuthzToken getUserManagementServiceAccountAuthzToken(AuthzToken authzToken, String gatewayId) throws AiravataSecurityException {
         throw new RuntimeException("Not implemented");
     }
 

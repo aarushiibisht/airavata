@@ -161,7 +161,7 @@ public class UserProfileServiceHandler implements UserProfileService.Iface {
         return () -> {
             try {
                 AiravataSecurityManager securityManager = SecurityManagerFactory.getSecurityManager();
-                AuthzToken serviceAccountAuthzToken = securityManager.getUserManagementServiceAccountAuthzToken(gatewayId);
+                AuthzToken serviceAccountAuthzToken = securityManager.getUserManagementServiceAccountAuthzToken(authzToken, gatewayId);
                 IamAdminServices.Client iamAdminServicesClient = getIamAdminServicesClient();
                 iamAdminServicesClient.updateUserProfile(serviceAccountAuthzToken, userProfile);
             } catch (AiravataSecurityException|TException e) {

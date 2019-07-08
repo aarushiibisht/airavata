@@ -25,12 +25,17 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.airavata.common.exception.ApplicationSettingsException;
 import org.apache.airavata.common.utils.Constants;
 import org.apache.airavata.common.utils.ServerSettings;
+import org.apache.airavata.model.error.AuthenticationException;
 import org.apache.airavata.model.error.AuthorizationException;
 import org.apache.airavata.model.security.AuthzToken;
 import org.apache.airavata.security.AiravataSecurityException;
 import org.apache.airavata.service.security.AiravataSecurityManager;
 import org.apache.airavata.service.security.IdentityContext;
 import org.apache.airavata.service.security.SecurityManagerFactory;
+import org.apache.custos.authentication.cpi.CustosAuthenticationService;
+import org.apache.custos.authentication.cpi.exception.CustosAuthenticationServiceException;
+import org.apache.custos.client.authentication.service.AuthenticationServiceClient;
+import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +72,7 @@ public class SecurityInterceptor implements MethodInterceptor {
                 AiravataSecurityManager securityManager = SecurityManagerFactory.getSecurityManager();
                 boolean isAuthz = securityManager.isUserAuthorized(authzToken, metaData);
                 if (!isAuthz) {
-                    throw new AuthorizationException("User is not authenticated or authorized.");
+                    throw new AuthorizationException("User is not authorized.");
                 }
             }
         } catch (AiravataSecurityException e) {

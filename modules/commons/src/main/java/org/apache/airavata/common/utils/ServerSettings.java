@@ -139,6 +139,10 @@ public class ServerSettings extends ApplicationSettings {
     /* Caching */
     private static final String SESSION_CACHE_ACCESS_TIME_OUT = "ssh.session.cache.access.timeout";
 
+    //Custos Service Constants
+    public static final String CUSTOS_AUTHENTICATION_SERVICE_HOST = "custos.authentication.service.host";
+    public static final String CUSTOS_AUTHENTICATION_SERVICE_PORT  = "custos.authentication.service.port";
+
     // todo until AIRAVATA-2066 is finished, keep server side list configurations here.
     private static Map<String, String[]> listConfigurations = new HashMap<>();
 
@@ -501,5 +505,13 @@ public class ServerSettings extends ApplicationSettings {
 
     public static String getSharingRegistryHost() {
         return getSetting(SHARING_REGISTRY_HOST, "localhost");
+    }
+
+    public static String getCustosAuthenticationServiceHost() throws ApplicationSettingsException{
+        return getSetting(CUSTOS_AUTHENTICATION_SERVICE_HOST);
+    }
+
+    public static String getCustosAuthenticationServicePort() throws ApplicationSettingsException{
+        return getSetting(CUSTOS_AUTHENTICATION_SERVICE_PORT);
     }
 }

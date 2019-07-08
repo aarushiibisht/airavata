@@ -48,7 +48,7 @@ public interface AiravataSecurityManager {
      * @return
      * @throws AiravataSecurityException
      */
-    public AuthzToken getUserManagementServiceAccountAuthzToken(String gatewayId) throws AiravataSecurityException;
+    public AuthzToken getUserManagementServiceAccountAuthzToken(AuthzToken authzToken, String gatewayId) throws AiravataSecurityException;
 
     /**
      * Get OpenID Connect user profile information from the given AuthzToken.
