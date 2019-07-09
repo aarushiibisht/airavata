@@ -28,8 +28,6 @@ import org.apache.airavata.credential.store.client.CredentialStoreClientFactory;
 import org.apache.airavata.credential.store.cpi.CredentialStoreService;
 import org.apache.airavata.credential.store.exception.CredentialStoreException;
 import org.apache.airavata.model.appcatalog.gatewaygroups.GatewayGroups;
-import org.apache.airavata.model.appcatalog.gatewayprofile.GatewayResourceProfile;
-import org.apache.airavata.model.credential.store.PasswordCredential;
 import org.apache.airavata.model.error.AuthenticationException;
 import org.apache.airavata.model.security.AuthzToken;
 import org.apache.airavata.model.workspace.Gateway;
@@ -41,33 +39,13 @@ import org.apache.airavata.security.util.TrustStoreManager;
 import org.apache.airavata.service.security.authzcache.*;
 import org.apache.airavata.sharing.registry.client.SharingRegistryServiceClientFactory;
 import org.apache.airavata.sharing.registry.models.SharingRegistryException;
-import org.apache.airavata.sharing.registry.models.User;
 import org.apache.airavata.sharing.registry.models.UserGroup;
 import org.apache.airavata.sharing.registry.service.cpi.SharingRegistryService;
 import org.apache.custos.authentication.cpi.CustosAuthenticationService;
 import org.apache.custos.client.authentication.service.AuthenticationServiceClient;
-import org.apache.http.Consts;
-import org.apache.http.HttpHeaders;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.apache.thrift.TException;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -281,17 +259,21 @@ public class AiravataSecurityManagerImpl implements AiravataSecurityManager {
     public AuthzToken getUserManagementServiceAccountAuthzToken(AuthzToken authzToken, String gatewayId) throws AiravataSecurityException {
         try {
             initServiceClients();
-            AuthzToken userManagementAuthzToken = new AuthzToken();
-            org.apache.custos.commons.model.security.AuthzToken custosAuthz = custosAuthenticationClient.getUserManagementServiceAccountAuthzToken(prepareCustosAuthenticationToken(authzToken),gatewayId);
-            userManagementAuthzToken.setClaimsMap(custosAuthz.getClaimsMap());
-            userManagementAuthzToken.setAccessToken(custosAuthz.getAccessToken());
-            return userManagementAuthzToken;
-        } catch (Exception e) {
+            Gateway gateway = registryServiceClient.getGateway(gatewayId);
+            org.apache.custos.commons.model.security.AuthzToken custosAuthzToken = custosAuthenticationClient.getUserManagementServiceAccountAuthzToken(prepareCustosAuthenticationToken(authzToken),gatewayId,gateway.getOauthClientId(), gateway.getOauthClientSecret());
+            AuthzToken managementAuthzToken = new AuthzToken();
+            managementAuthzToken.setAccessToken(custosAuthzToken.getAccessToken());
+            managementAuthzToken.setClaimsMap(custosAuthzToken.getClaimsMap());
+            return managementAuthzToken;
+        } catch (TException e) {
             throw new AiravataSecurityException(e);
+        }catch (ApplicationSettingsException e){
+            throw new AiravataSecurityException("Internal error in getting authz token");
         } finally {
             closeServiceClients();
         }
     }
+
 
     @Override
     public UserInfo getUserInfoFromAuthzToken(AuthzToken authzToken) throws AiravataSecurityException {
@@ -402,13 +384,13 @@ public class AiravataSecurityManagerImpl implements AiravataSecurityManager {
         }
     }
 
-    private CustosAuthenticationService.Client getCustosAuthenticationClient() throws AuthenticationException{
+    private CustosAuthenticationService.Client getCustosAuthenticationClient() throws TException{
         try {
             CustosAuthenticationService.Client client = AuthenticationServiceClient.createAuthenticationServiceClient(ServerSettings.getCustosAuthenticationServiceHost(), Integer.parseInt(ServerSettings.getCustosAuthenticationServicePort()));
             return client;
         } catch (TException e){
             logger.error(e.getMessage(), e);
-            throw new AuthenticationException("Unable to create custos authentication client.");
+            throw new TException("Unable to create custos authentication client...", e);
         } catch (ApplicationSettingsException e){
             logger.error(e.getMessage(), e);
             throw new AuthenticationException("Internal error in creating the custos authentication client.");
@@ -446,7 +428,7 @@ public class AiravataSecurityManagerImpl implements AiravataSecurityManager {
         airavataUserInfo.setFirstName(userInfo.getFirstName());
         airavataUserInfo.setLastName(userInfo.getLastName());
         airavataUserInfo.setFullName(userInfo.getFullName());
-        airavataUserInfo.setEmailAddress(userInfo.getUsername());
+        airavataUserInfo.setEmailAddress(userInfo.getEmailAddress());
         airavataUserInfo.setUsername(userInfo.getUsername());
         return airavataUserInfo;
     }
