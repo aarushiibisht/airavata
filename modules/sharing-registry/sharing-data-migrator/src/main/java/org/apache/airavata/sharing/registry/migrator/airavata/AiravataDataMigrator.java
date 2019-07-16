@@ -83,75 +83,83 @@ public class AiravataDataMigrator {
                 Domain domain = new Domain();
                 domain.setDomainId(rs.getString("GATEWAY_ID"));
                 domain.setName(rs.getString("GATEWAY_ID"));
-                domain.setDescription("Domain entry for " + domain.name);
+                domain.setDescription("Domain entry for " + domain.getName());
 
-                if (!sharingRegistryServerHandler.isDomainExists(domain.domainId))
+                if (!sharingRegistryServerHandler.isDomainExists(domain.getDomainId()))
                     sharingRegistryServerHandler.createDomain(domain);
 
                 //Creating Entity Types for each domain
                 EntityType entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId+":PROJECT");
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId()+":PROJECT");
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName("PROJECT");
                 entityType.setDescription("Project entity type");
-                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.domainId, entityType.entityTypeId))
+                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.getDomainId(), entityType.getEntityTypeId()))
                     sharingRegistryServerHandler.createEntityType(entityType);
 
                 entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId+":EXPERIMENT");
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId()+":EXPERIMENT");
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName("EXPERIMENT");
                 entityType.setDescription("Experiment entity type");
-                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.domainId, entityType.entityTypeId))
+                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.getDomainId(), entityType.getEntityTypeId()))
                     sharingRegistryServerHandler.createEntityType(entityType);
 
                 entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId+":FILE");
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId()+":FILE");
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName("FILE");
                 entityType.setDescription("File entity type");
-                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.domainId, entityType.entityTypeId))
+                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.getDomainId(), entityType.getEntityTypeId()))
                     sharingRegistryServerHandler.createEntityType(entityType);
 
                 entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId+":"+ ResourceType.APPLICATION_DEPLOYMENT.name());
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId()+":"+ ResourceType.APPLICATION_DEPLOYMENT.name());
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName("APPLICATION-DEPLOYMENT");
                 entityType.setDescription("Application Deployment entity type");
-                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.domainId, entityType.entityTypeId))
+                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.getDomainId(), entityType.getEntityTypeId()))
                     sharingRegistryServerHandler.createEntityType(entityType);
 
                 entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId+":"+ResourceType.GROUP_RESOURCE_PROFILE.name());
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId()+":"+ResourceType.GROUP_RESOURCE_PROFILE.name());
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName(ResourceType.GROUP_RESOURCE_PROFILE.name());
                 entityType.setDescription("Group Resource Profile entity type");
-                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.domainId, entityType.entityTypeId))
+                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.getDomainId(), entityType.getEntityTypeId()))
                     sharingRegistryServerHandler.createEntityType(entityType);
 
                 entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId+":"+ResourceType.CREDENTIAL_TOKEN.name());
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId()+":"+ResourceType.CREDENTIAL_TOKEN.name());
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName(ResourceType.CREDENTIAL_TOKEN.name());
                 entityType.setDescription("Credential Store Token entity type");
-                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.domainId, entityType.entityTypeId))
+                if (!sharingRegistryServerHandler.isEntityTypeExists(entityType.getDomainId(), entityType.getEntityTypeId()))
                     sharingRegistryServerHandler.createEntityType(entityType);
 
                 //Creating Permission Types for each domain
                 PermissionType permissionType = new PermissionType();
-                permissionType.setPermissionTypeId(domain.domainId+":READ");
-                permissionType.setDomainId(domain.domainId);
+                permissionType.setPermissionTypeId(domain.getDomainId()+":READ");
+                permissionType.setDomainId(domain.getDomainId());
                 permissionType.setName("READ");
                 permissionType.setDescription("Read permission type");
-                if (!sharingRegistryServerHandler.isPermissionExists(permissionType.domainId, permissionType.permissionTypeId))
+                if (!sharingRegistryServerHandler.isPermissionExists(permissionType.getDomainId(), permissionType.getPermissionTypeId()))
                     sharingRegistryServerHandler.createPermissionType(permissionType);
 
                 permissionType = new PermissionType();
-                permissionType.setPermissionTypeId(domain.domainId+":WRITE");
-                permissionType.setDomainId(domain.domainId);
+                permissionType.setPermissionTypeId(domain.getDomainId()+":WRITE");
+                permissionType.setDomainId(domain.getDomainId());
                 permissionType.setName("WRITE");
                 permissionType.setDescription("Write permission type");
-                if (!sharingRegistryServerHandler.isPermissionExists(permissionType.domainId, permissionType.permissionTypeId))
+                if (!sharingRegistryServerHandler.isPermissionExists(permissionType.getDomainId(), permissionType.getPermissionTypeId()))
+                    sharingRegistryServerHandler.createPermissionType(permissionType);
+
+                permissionType = new PermissionType();
+                permissionType.setPermissionTypeId(domain.getDomainId()+":MANAGE_SHARING");
+                permissionType.setDomainId(domain.getDomainId());
+                permissionType.setName("MANAGE_SHARING");
+                permissionType.setDescription("Sharing permission type");
+                if (!sharingRegistryServerHandler.isPermissionExists(permissionType.getDomainId(), permissionType.getPermissionTypeId()))
                     sharingRegistryServerHandler.createPermissionType(permissionType);
 
             }catch (Exception ex){
@@ -170,7 +178,7 @@ public class AiravataDataMigrator {
                 user.setDomainId(rs.getString("GATEWAY_ID"));
                 user.setUserName(rs.getString("USER_NAME"));
 
-                if (!sharingRegistryServerHandler.isUserExists(user.domainId, user.userId))
+                if (!sharingRegistryServerHandler.isUserExists(user.getDomainId(), user.getUserId()))
                     sharingRegistryServerHandler.createUser(user);
             }catch (Exception ex){
                 ex.printStackTrace();
@@ -187,23 +195,23 @@ public class AiravataDataMigrator {
         final RegistryService.Client registryServiceClient = getRegistryServiceClient();
         for (Domain domain : domainList) {
             // If we're only running migration for gatewayId, then skip other gateways
-            if (gatewayId != null && !gatewayId.equals(domain.domainId)) {
+            if (gatewayId != null && !gatewayId.equals(domain.getDomainId())) {
                 continue;
             }
             String ownerId = getAdminOwnerUser(domain, sharingRegistryServerHandler, credentialStoreServiceClient, registryServiceClient);
             if (ownerId != null) {
-                domainOwnerMap.put(domain.domainId, ownerId);
+                domainOwnerMap.put(domain.getDomainId(), ownerId);
             } else {
                 continue;
             }
 
-            if (registryServiceClient.isGatewayGroupsExists(domain.domainId)) {
-                GatewayGroups gatewayGroups = registryServiceClient.getGatewayGroups(domain.domainId);
-                gatewayGroupsMap.put(domain.domainId, gatewayGroups);
+            if (registryServiceClient.isGatewayGroupsExists(domain.getDomainId())) {
+                GatewayGroups gatewayGroups = registryServiceClient.getGatewayGroups(domain.getDomainId());
+                gatewayGroupsMap.put(domain.getDomainId(), gatewayGroups);
             } else {
 
                 GatewayGroups gatewayGroups = migrateRolesToGatewayGroups(domain, ownerId, sharingRegistryServerHandler, registryServiceClient);
-                gatewayGroupsMap.put(domain.domainId, gatewayGroups);
+                gatewayGroupsMap.put(domain.getDomainId(), gatewayGroups);
             }
         }
 
@@ -228,7 +236,6 @@ public class AiravataDataMigrator {
 //                Map<String, String> metadata = new HashMap<>();
 //                metadata.put("CREATION_TIME", rs.getDate("CREATION_TIME").toString());
                 projectEntities.add(entity);
-
             }catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -263,31 +270,30 @@ public class AiravataDataMigrator {
 //                metadata.put("GATEWAY_INSTANCE_ID", rs.getString("GATEWAY_INSTANCE_ID"));
 //                metadata.put("ARCHIVE", rs.getString("ARCHIVE"));
                 experimentEntities.add(entity);
-
             }catch (Exception ex){
                 ex.printStackTrace();
             }
         }
 
         for (Entity entity : projectEntities) {
-            if (!sharingRegistryServerHandler.isEntityExists(entity.domainId, entity.entityId)) {
+            if (!sharingRegistryServerHandler.isEntityExists(entity.getDomainId(), entity.getEntityId())) {
                 sharingRegistryServerHandler.createEntity(entity);
             }
         }
 
         for (Entity entity : experimentEntities) {
-            if (!sharingRegistryServerHandler.isEntityExists(entity.domainId, entity.entityId)) {
-                if (!sharingRegistryServerHandler.isEntityExists(entity.domainId, entity.parentEntityId)) {
-                    System.out.println("Warning: project entity does exist for experiment entity " + entity.entityId + " in gateway " + entity.domainId);
+            if (!sharingRegistryServerHandler.isEntityExists(entity.getDomainId(), entity.getEntityId())) {
+                if (!sharingRegistryServerHandler.isEntityExists(entity.getDomainId(), entity.getParentEntityId())) {
+                    System.out.println("Warning: project entity does exist for experiment entity " + entity.getEntityId() + " in gateway " + entity.getDomainId());
                     continue;
                 } else {
                     sharingRegistryServerHandler.createEntity(entity);
                 }
             }
-            if (gatewayGroupsMap.containsKey(entity.domainId)) {
-                shareEntityWithAdminGatewayGroups(sharingRegistryServerHandler, entity, gatewayGroupsMap.get(entity.domainId), false);
+            if (gatewayGroupsMap.containsKey(entity.getDomainId())) {
+                shareEntityWithAdminGatewayGroups(sharingRegistryServerHandler, entity, gatewayGroupsMap.get(entity.getDomainId()), false);
             } else {
-                System.out.println("Warning: no Admin gateway groups to share experiment entity " + entity.entityId + " in gateway " + entity.domainId);
+                System.out.println("Warning: no Admin gateway groups to share experiment entity " + entity.getEntityId() + " in gateway " + entity.getDomainId());
             }
         }
 
@@ -299,7 +305,7 @@ public class AiravataDataMigrator {
                 Entity entity = new Entity();
                 entity.setEntityId(description.getAppDeploymentId());
                 entity.setDomainId(domainID);
-                entity.setEntityTypeId(entity.domainId + ":" + ResourceType.APPLICATION_DEPLOYMENT.name());
+                entity.setEntityTypeId(entity.getDomainId() + ":" + ResourceType.APPLICATION_DEPLOYMENT.name());
                 entity.setOwnerId(domainOwnerMap.get(domainID));
                 entity.setName(description.getAppDeploymentId());
                 entity.setDescription(description.getAppDeploymentDescription());
@@ -308,7 +314,7 @@ public class AiravataDataMigrator {
                 else
                     entity.setFullText(entity.getName() + " " + entity.getDescription());
 
-                if (!sharingRegistryServerHandler.isEntityExists(entity.domainId, entity.entityId))
+                if (!sharingRegistryServerHandler.isEntityExists(entity.getDomainId(), entity.getEntityId()))
                     sharingRegistryServerHandler.createEntity(entity);
                 shareEntityWithGatewayGroups(sharingRegistryServerHandler, entity, gatewayGroups, false);
             }
@@ -317,7 +323,7 @@ public class AiravataDataMigrator {
         // Migrating from GatewayResourceProfile to GroupResourceProfile
         for (String domainID : domainOwnerMap.keySet()) {
             GatewayGroups gatewayGroups = gatewayGroupsMap.get(domainID);
-            if (needsGroupResourceProfileMigration(domainID, registryServiceClient)) {
+            if (needsGroupResourceProfileMigration(domainID, domainOwnerMap.get(domainID), registryServiceClient, sharingRegistryServerHandler)) {
 
                 GroupResourceProfile groupResourceProfile = migrateGatewayResourceProfileToGroupResourceProfile(domainID, registryServiceClient);
 
@@ -325,11 +331,11 @@ public class AiravataDataMigrator {
                 Entity entity = new Entity();
                 entity.setEntityId(groupResourceProfile.getGroupResourceProfileId());
                 entity.setDomainId(domainID);
-                entity.setEntityTypeId(entity.domainId + ":" + ResourceType.GROUP_RESOURCE_PROFILE.name());
+                entity.setEntityTypeId(entity.getDomainId() + ":" + ResourceType.GROUP_RESOURCE_PROFILE.name());
                 entity.setOwnerId(domainOwnerMap.get(domainID));
                 entity.setName(groupResourceProfile.getGroupResourceProfileName());
                 entity.setDescription(groupResourceProfile.getGroupResourceProfileName() + " Group Resource Profile");
-                if (!sharingRegistryServerHandler.isEntityExists(entity.domainId, entity.entityId))
+                if (!sharingRegistryServerHandler.isEntityExists(entity.getDomainId(), entity.getEntityId()))
                     sharingRegistryServerHandler.createEntity(entity);
                 shareEntityWithGatewayGroups(sharingRegistryServerHandler, entity, gatewayGroups, false);
 
@@ -343,14 +349,14 @@ public class AiravataDataMigrator {
                 Entity entity = new Entity();
                 entity.setEntityId(credentialSummary.getToken());
                 entity.setDomainId(domainID);
-                entity.setEntityTypeId(entity.domainId + ":" + ResourceType.CREDENTIAL_TOKEN.name());
+                entity.setEntityTypeId(entity.getDomainId() + ":" + ResourceType.CREDENTIAL_TOKEN.name());
                 entity.setOwnerId(domainOwnerMap.get(domainID));
                 entity.setName(credentialSummary.getToken());
-                entity.setDescription(credentialSummary.getDescription());
-                if (!sharingRegistryServerHandler.isEntityExists(entity.domainId, entity.entityId))
+                entity.setDescription(maxLengthString(credentialSummary.getDescription(), 255));
+                if (!sharingRegistryServerHandler.isEntityExists(entity.getDomainId(), entity.getEntityId()))
                     sharingRegistryServerHandler.createEntity(entity);
-                if (gatewayGroupsMap.containsKey(entity.domainId)) {
-                    shareEntityWithAdminGatewayGroups(sharingRegistryServerHandler, entity, gatewayGroupsMap.get(entity.domainId), false);
+                if (gatewayGroupsMap.containsKey(entity.getDomainId())) {
+                    shareEntityWithAdminGatewayGroups(sharingRegistryServerHandler, entity, gatewayGroupsMap.get(entity.getDomainId()), false);
                 }
             }
         }
@@ -361,8 +367,7 @@ public class AiravataDataMigrator {
             for (User sharingUser : sharingUsers) {
 
                 String userId = sharingUser.getUserId();
-                int index = userId.lastIndexOf("@");
-                if (index <= 0) {
+                if (!userId.endsWith("@" + domainID)) {
                     System.out.println("Skipping credentials for user " + userId + " since sharing user id is improperly formed");
                     continue;
                 }
@@ -372,11 +377,12 @@ public class AiravataDataMigrator {
                     Entity entity = new Entity();
                     entity.setEntityId(credentialSummary.getToken());
                     entity.setDomainId(domainID);
-                    entity.setEntityTypeId(entity.domainId + ":" + ResourceType.CREDENTIAL_TOKEN.name());
+                    entity.setEntityTypeId(entity.getDomainId() + ":" + ResourceType.CREDENTIAL_TOKEN.name());
                     entity.setOwnerId(userId);
                     entity.setName(credentialSummary.getToken());
-                    entity.setDescription(credentialSummary.getDescription());
-                    if (!sharingRegistryServerHandler.isEntityExists(entity.domainId, entity.entityId))
+                    // Cap description length at max 255 characters
+                    entity.setDescription(maxLengthString(credentialSummary.getDescription(), 255));
+                    if (!sharingRegistryServerHandler.isEntityExists(entity.getDomainId(), entity.getEntityId()))
                         sharingRegistryServerHandler.createEntity(entity);
                     // Don't need to share USER SSH tokens with any group
                 }
@@ -389,14 +395,14 @@ public class AiravataDataMigrator {
                 Entity entity = new Entity();
                 entity.setEntityId(gatewayPasswordEntry.getKey());
                 entity.setDomainId(domainID);
-                entity.setEntityTypeId(entity.domainId + ":" + ResourceType.CREDENTIAL_TOKEN.name());
+                entity.setEntityTypeId(entity.getDomainId() + ":" + ResourceType.CREDENTIAL_TOKEN.name());
                 entity.setOwnerId(domainOwnerMap.get(domainID));
                 entity.setName(gatewayPasswordEntry.getKey());
-                entity.setDescription(gatewayPasswordEntry.getValue());
-                if (!sharingRegistryServerHandler.isEntityExists(entity.domainId, entity.entityId))
+                entity.setDescription(maxLengthString(gatewayPasswordEntry.getValue(), 255));
+                if (!sharingRegistryServerHandler.isEntityExists(entity.getDomainId(), entity.getEntityId()))
                     sharingRegistryServerHandler.createEntity(entity);
-                if (gatewayGroupsMap.containsKey(entity.domainId)) {
-                    shareEntityWithAdminGatewayGroups(sharingRegistryServerHandler, entity, gatewayGroupsMap.get(entity.domainId), false);
+                if (gatewayGroupsMap.containsKey(entity.getDomainId())) {
+                    shareEntityWithAdminGatewayGroups(sharingRegistryServerHandler, entity, gatewayGroupsMap.get(entity.getDomainId()), false);
                 }
             }
         }
@@ -409,53 +415,53 @@ public class AiravataDataMigrator {
 
     private static void shareEntityWithGatewayGroups(SharingRegistryServerHandler sharingRegistryServerHandler, Entity entity, GatewayGroups gatewayGroups, boolean cascadePermission) throws TException {
         // Give default Gateway Users group READ access
-        sharingRegistryServerHandler.shareEntityWithGroups(entity.domainId, entity.entityId,
+        sharingRegistryServerHandler.shareEntityWithGroups(entity.getDomainId(), entity.getEntityId(),
                 Arrays.asList(gatewayGroups.getDefaultGatewayUsersGroupId()),
-                entity.domainId + ":" + ResourcePermissionType.READ, cascadePermission);
+                entity.getDomainId() + ":" + ResourcePermissionType.READ, cascadePermission);
         shareEntityWithAdminGatewayGroups(sharingRegistryServerHandler, entity, gatewayGroups, cascadePermission);
     }
 
     private static void shareEntityWithAdminGatewayGroups(SharingRegistryServerHandler sharingRegistryServerHandler, Entity entity, GatewayGroups gatewayGroups, boolean cascadePermission) throws TException {
         // Give Admins group and Read Only Admins group READ access
-        sharingRegistryServerHandler.shareEntityWithGroups(entity.domainId, entity.entityId,
+        sharingRegistryServerHandler.shareEntityWithGroups(entity.getDomainId(), entity.getEntityId(),
                 Arrays.asList(gatewayGroups.getAdminsGroupId(), gatewayGroups.getReadOnlyAdminsGroupId()),
-                entity.domainId + ":" + ResourcePermissionType.READ, cascadePermission);
+                entity.getDomainId() + ":" + ResourcePermissionType.READ, cascadePermission);
         // Give Admins group WRITE access
-        sharingRegistryServerHandler.shareEntityWithGroups(entity.domainId, entity.entityId,
+        sharingRegistryServerHandler.shareEntityWithGroups(entity.getDomainId(), entity.getEntityId(),
                 Arrays.asList(gatewayGroups.getAdminsGroupId()),
-                entity.domainId + ":" + ResourcePermissionType.WRITE, cascadePermission);
+                entity.getDomainId() + ":" + ResourcePermissionType.WRITE, cascadePermission);
     }
 
     private static GatewayGroups migrateRolesToGatewayGroups(Domain domain, String ownerId, SharingRegistryServerHandler sharingRegistryServerHandler, RegistryService.Client registryServiceClient) throws TException, ApplicationSettingsException {
         GatewayGroups gatewayGroups = new GatewayGroups();
-        gatewayGroups.setGatewayId(domain.domainId);
+        gatewayGroups.setGatewayId(domain.getDomainId());
 
         // Migrate roles to groups
-        List<String> usernames = sharingRegistryServerHandler.getUsers(domain.domainId, 0, -1)
+        List<String> usernames = sharingRegistryServerHandler.getUsers(domain.getDomainId(), 0, -1)
                 .stream()
-                // Filter out bad ids that don't have an "@" in them
-                .filter(user -> user.getUserId().lastIndexOf("@") > 0)
+                // Filter out bad user ids that don't end in "@" + domainId
+                .filter(user -> user.getUserId().endsWith("@" + domain.getDomainId()))
                 .map(user -> user.getUserId().substring(0, user.getUserId().lastIndexOf("@")))
                 .collect(Collectors.toList());
-        Map<String, List<String>> roleMap = loadRolesForUsers(domain.domainId, usernames);
+        Map<String, List<String>> roleMap = loadRolesForUsers(domain.getDomainId(), usernames);
 
         UserGroup gatewayUsersGroup = createGroup(sharingRegistryServerHandler, domain, ownerId,
                 "Gateway Users",
                 "Default group for users of the gateway.",
                 roleMap.containsKey("gateway-user") ? roleMap.get("gateway-user") : Collections.emptyList());
-        gatewayGroups.setDefaultGatewayUsersGroupId(gatewayUsersGroup.groupId);
+        gatewayGroups.setDefaultGatewayUsersGroupId(gatewayUsersGroup.getGroupId());
 
         UserGroup adminUsersGroup = createGroup(sharingRegistryServerHandler, domain, ownerId,
                 "Admin Users",
                 "Admin users group.",
                 roleMap.containsKey("admin") ? roleMap.get("admin") : Collections.emptyList());
-        gatewayGroups.setAdminsGroupId(adminUsersGroup.groupId);
+        gatewayGroups.setAdminsGroupId(adminUsersGroup.getGroupId());
 
         UserGroup readOnlyAdminsGroup = createGroup(sharingRegistryServerHandler, domain, ownerId,
                 "Read Only Admin Users",
                 "Group of admin users with read-only access.",
                 roleMap.containsKey("admin-read-only") ? roleMap.get("admin-read-only") : Collections.emptyList());
-        gatewayGroups.setReadOnlyAdminsGroupId(readOnlyAdminsGroup.groupId);
+        gatewayGroups.setReadOnlyAdminsGroupId(readOnlyAdminsGroup.getGroupId());
 
         registryServiceClient.createGatewayGroups(gatewayGroups);
         return gatewayGroups;
@@ -464,13 +470,13 @@ public class AiravataDataMigrator {
     private static String getAdminOwnerUser(Domain domain, SharingRegistryServerHandler sharingRegistryServerHandler, CredentialStoreService.Client credentialStoreServiceClient, RegistryService.Client registryServiceClient) throws TException {
         GatewayResourceProfile gatewayResourceProfile = null;
         try {
-            gatewayResourceProfile = registryServiceClient.getGatewayResourceProfile(domain.domainId);
+            gatewayResourceProfile = registryServiceClient.getGatewayResourceProfile(domain.getDomainId());
         } catch (Exception e) {
-            System.out.println("Skipping creating group based auth migration for " + domain.domainId + " because it doesn't have a GatewayResourceProfile");
+            System.out.println("Skipping creating group based auth migration for " + domain.getDomainId() + " because it doesn't have a GatewayResourceProfile");
             return null;
         }
         if (gatewayResourceProfile.getIdentityServerPwdCredToken() == null) {
-            System.out.println("Skipping creating group based auth migration for " + domain.domainId + " because it doesn't have an identity server pwd credential token");
+            System.out.println("Skipping creating group based auth migration for " + domain.getDomainId() + " because it doesn't have an identity server pwd credential token");
             return null;
         }
         String groupOwner = null;
@@ -479,13 +485,13 @@ public class AiravataDataMigrator {
                     gatewayResourceProfile.getIdentityServerPwdCredToken(), gatewayResourceProfile.getGatewayID());
             groupOwner = credential.getLoginUserName();
         } catch (Exception e) {
-            System.out.println("Skipping creating group based auth migration for " + domain.domainId + " because the identity server pwd credential could not be retrieved.");
+            System.out.println("Skipping creating group based auth migration for " + domain.getDomainId() + " because the identity server pwd credential could not be retrieved.");
             return null;
         }
 
-        String ownerId = groupOwner + "@" + domain.domainId;
-        if (!sharingRegistryServerHandler.isUserExists(domain.domainId, ownerId)) {
-            System.out.println("Skipping creating group based auth migration for " + domain.domainId + " because admin user doesn't exist in sharing registry.");
+        String ownerId = groupOwner + "@" + domain.getDomainId();
+        if (!sharingRegistryServerHandler.isUserExists(domain.getDomainId(), ownerId)) {
+            System.out.println("Skipping creating group based auth migration for " + domain.getDomainId() + " because admin user doesn't exist in sharing registry.");
             return null;
         }
         return ownerId;
@@ -529,7 +535,7 @@ public class AiravataDataMigrator {
 
         UserGroup userGroup = new UserGroup();
         userGroup.setGroupId(AiravataUtils.getId(groupName));
-        userGroup.setDomainId(domain.domainId);
+        userGroup.setDomainId(domain.getDomainId());
         userGroup.setGroupCardinality(GroupCardinality.MULTI_USER);
         userGroup.setCreatedTime(System.currentTimeMillis());
         userGroup.setUpdatedTime(System.currentTimeMillis());
@@ -540,17 +546,26 @@ public class AiravataDataMigrator {
         sharingRegistryServerHandler.createGroup(userGroup);
 
         List<String> userIds = usernames.stream()
-                .map(username -> username + "@" + domain.domainId)
+                .map(username -> username + "@" + domain.getDomainId())
                 .collect(Collectors.toList());
 
-        sharingRegistryServerHandler.addUsersToGroup(domain.domainId, userIds, userGroup.getGroupId());
+        sharingRegistryServerHandler.addUsersToGroup(domain.getDomainId(), userIds, userGroup.getGroupId());
         return userGroup;
     }
 
-    private static boolean needsGroupResourceProfileMigration(String gatewayId, RegistryService.Client registryServiceClient) throws TException {
+    private static boolean needsGroupResourceProfileMigration(String gatewayId, String domainOwnerId, RegistryService.Client registryServiceClient, SharingRegistryServerHandler sharingRegistryServerHandler)
+            throws TException {
         // Return true if GatewayResourceProfile has at least one ComputeResourcePreference and there is no GroupResourceProfile
         List<ComputeResourcePreference> computeResourcePreferences = registryServiceClient.getAllGatewayComputeResourcePreferences(gatewayId);
-        List<GroupResourceProfile> groupResourceProfiles = registryServiceClient.getGroupResourceList(gatewayId, Collections.emptyList());
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.setSearchField(EntitySearchField.ENTITY_TYPE_ID);
+        searchCriteria.setSearchCondition(SearchCondition.EQUAL);
+        searchCriteria.setValue(gatewayId + ":" + ResourceType.GROUP_RESOURCE_PROFILE.name());
+        List<String> accessibleGRPIds = sharingRegistryServerHandler.searchEntities(gatewayId, domainOwnerId, Collections.singletonList(searchCriteria), 0, -1)
+                .stream()
+                .map(p -> p.getEntityId())
+                .collect(Collectors.toList());
+        List<GroupResourceProfile> groupResourceProfiles = registryServiceClient.getGroupResourceList(gatewayId, accessibleGRPIds);
         return !computeResourcePreferences.isEmpty() && groupResourceProfiles.isEmpty();
     }
 
@@ -628,6 +643,15 @@ public class AiravataDataMigrator {
 
     private static boolean isValid(String s) {
         return s != null && !"".equals(s.trim());
+    }
+
+    private static String maxLengthString(String s, int maxLength) {
+
+        if (s != null) {
+            return s.substring(0, Math.min(maxLength, s.length()));
+        } else {
+            return null;
+        }
     }
 
     private static CredentialStoreService.Client getCredentialStoreServiceClient() throws TException, ApplicationSettingsException {

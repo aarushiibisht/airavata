@@ -40,6 +40,19 @@ DEBUG = {{ django_debug | ternary("True", "False") }}
 STATIC_ROOT = "{{ static_root_dir }}"
 ALLOWED_HOSTS = ['{{ vhost_servername }}']
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '{{ django_database_name }}',
+        'HOST': '{{ db_server }}',
+        'USER': '{{ django_db_username }}',
+        'PASSWORD': '{{ django_db_password }}'
+    },
+    'OPTIONS': {
+        'init_command': 'SET default_storage_engine=INNODB,collation_connection=utf8_bin',
+    }
+}
+
 # Django - Email settings
 # Uncomment and specify the following for sending emails (default email backend
 # just prints to the console)
@@ -49,7 +62,12 @@ EMAIL_PORT = {{ portal_email_port }}
 EMAIL_HOST_USER = '{{ portal_email_username }}'
 EMAIL_HOST_PASSWORD = '{{ portal_email_password }}'
 EMAIL_USE_TLS = {{ portal_email_tls | ternary("True", "False") }}
-ADMINS = {{ admin_emails }}
+# ADMINS receive error emails
+ADMINS = {{ django_error_emails }}
+# PORTAL_ADMINS receive administrative emails, like when a new user is created
+# This can be set to a different value than ADMINS so that the PORTAL_ADMINS
+# don't receive error emails
+PORTAL_ADMINS = {{ admin_emails }}
 SERVER_EMAIL = '{{ portal_server_email }}'
 
 # Keycloak Configuration
@@ -111,6 +129,9 @@ PORTAL_TITLE = '{{ portal_title }}'
 
 # webpack_loader override to load from STATIC_ROOT
 WEBPACK_LOADER = webpack_loader_util.create_webpack_loader_config(STATIC_ROOT)
+
+# Hidden Airavata apps (not all gateways need all functionality)
+HIDDEN_AIRAVATA_APPS = {{ django_hidden_airavata_apps }}
 
 # Extra settings
 {% for extra_setting in django_extra_settings.items() | list %}

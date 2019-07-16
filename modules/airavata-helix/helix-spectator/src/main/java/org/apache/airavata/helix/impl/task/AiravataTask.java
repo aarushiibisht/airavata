@@ -39,10 +39,16 @@ import org.apache.airavata.model.data.replica.*;
 import org.apache.airavata.model.experiment.ExperimentModel;
 import org.apache.airavata.model.messaging.event.*;
 import org.apache.airavata.model.process.ProcessModel;
+import org.apache.airavata.model.security.AuthzToken;
 import org.apache.airavata.model.status.*;
+import org.apache.airavata.model.user.UserProfile;
 import org.apache.airavata.registry.api.RegistryService;
 import org.apache.airavata.registry.api.client.RegistryServiceClientFactory;
 import org.apache.airavata.registry.api.exception.RegistryServiceException;
+import org.apache.airavata.service.profile.client.ProfileServiceClientFactory;
+import org.apache.airavata.service.profile.user.cpi.UserProfileService;
+import org.apache.airavata.service.profile.user.cpi.exception.UserProfileServiceException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.helix.HelixManager;
 import org.apache.helix.task.TaskResult;
@@ -51,6 +57,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
@@ -80,6 +88,9 @@ public abstract class AiravataTask extends AbstractTask {
 
     @TaskParam(name = "Skip Status Publish")
     private boolean skipTaskStatusPublish = false;
+
+    @TaskParam(name ="Force Run Task")
+    private boolean forceRunTask = false;
 
     protected TaskResult onSuccess(String message) {
         logger.info(message);
@@ -160,12 +171,32 @@ public abstract class AiravataTask extends AbstractTask {
                 logger.error("Failed to delete task specific nodes but continuing", e);
             }
 
+            cleanup();
+
             return onFail(errorMessage, fatal);
         } else {
             return onFail("Handover back to helix engine to retry", fatal);
         }
     }
 
+    protected void cleanup() {
+
+        try {
+            // cleaning up local data directory
+            String localDataPath = ServerSettings.getLocalDataLocation();
+            localDataPath = (localDataPath.endsWith(File.separator) ? localDataPath : localDataPath + File.separator);
+            localDataPath = localDataPath + getProcessId();
+
+            try {
+                FileUtils.deleteDirectory(new File(localDataPath));
+            } catch (IOException e) {
+                logger.error("Failed to delete local data directory " + localDataPath, e);
+            }
+        } catch (Exception e) {
+            logger.error("Failed to clean up", e);
+        }
+
+    }
     protected void saveAndPublishProcessStatus(ProcessState state) {
         ProcessStatus processStatus = new ProcessStatus(state);
         processStatus.setTimeOfStateChange(AiravataUtils.getCurrentTimestamp().getTime());
@@ -197,37 +228,10 @@ public abstract class AiravataTask extends AbstractTask {
         }
     }
 
-    @SuppressWarnings("WeakerAccess")
-    protected void saveAndPublishTaskStatus() {
-        try {
-            TaskState state = getTaskContext().getTaskState();
-            // first we save job jobModel to the registry for sa and then save the job status.
-            TaskStatus status = getTaskContext().getTaskStatus();
-            if (status.getTimeOfStateChange() == 0 || status.getTimeOfStateChange() > 0 ){
-                status.setTimeOfStateChange(AiravataUtils.getCurrentTimestamp().getTime());
-            }else {
-                status.setTimeOfStateChange(status.getTimeOfStateChange());
-            }
-            getRegistryServiceClient().addTaskStatus(status, getTaskId());
-            TaskIdentifier identifier = new TaskIdentifier(getTaskId(), getProcessId(), getExperimentId(), getGatewayId());
-            TaskStatusChangeEvent taskStatusChangeEvent = new TaskStatusChangeEvent(state,
-                    identifier);
-            MessageContext msgCtx = new MessageContext(taskStatusChangeEvent, MessageType.TASK, AiravataUtils.getId
-                    (MessageType.TASK.name()), getGatewayId());
-            msgCtx.setUpdatedTime(AiravataUtils.getCurrentTimestamp());
-            getStatusPublisher().publish(msgCtx);
-        } catch (Exception e) {
-            logger.error("Failed to publist task status of task " + getTaskId());
-        }
-    }
 
-
-    public void saveAndPublishJobStatus(String jobId, String processId, String experimentId, String gateway,
+    public void saveAndPublishJobStatus(String jobId, String taskId, String processId, String experimentId, String gateway,
                                          JobState jobState) throws Exception {
         try {
-
-            String taskId = Optional.ofNullable(MonitoringUtil.getTaskIdByJobId(getCuratorClient(), jobId))
-                    .orElseThrow(() -> new Exception("Can not find the task for job id " + jobId));
 
             JobStatus jobStatus = new JobStatus();
             jobStatus.setReason(jobState.name());
@@ -250,7 +254,6 @@ public abstract class AiravataTask extends AbstractTask {
             msgCtx.setUpdatedTime(AiravataUtils.getCurrentTimestamp());
             getStatusPublisher().publish(msgCtx);
 
-            MonitoringUtil.updateStatusOfJob(getCuratorClient(), jobId, jobState);
         } catch (Exception e) {
             logger.error("Error persisting job status " + e.getLocalizedMessage(), e);
         }
@@ -343,6 +346,16 @@ public abstract class AiravataTask extends AbstractTask {
             MDC.put("gateway", getGatewayId());
             MDC.put("task", getTaskId());
             loadContext();
+            if (!forceRunTask) {
+                if (this.taskContext != null) {
+                    TaskState taskState = taskContext.getTaskState();
+                    if (taskState != null && taskState != TaskState.CREATED) {
+                        logger.warn("Task " + getTaskId() + " is not in CREATED state. So skipping execution");
+                        skipTaskStatusPublish = false;
+                        return onSuccess("Task " + getTaskId() + " is not in CREATED state. So skipping execution");
+                    }
+                }
+            }
             if (!skipTaskStatusPublish) {
                 publishTaskState(TaskState.EXECUTING);
             }
@@ -409,8 +422,8 @@ public abstract class AiravataTask extends AbstractTask {
 
             TaskContext.TaskContextBuilder taskContextBuilder = new TaskContext.TaskContextBuilder(getProcessId(), getGatewayId(), getTaskId())
                     .setRegistryClient(getRegistryServiceClient())
-                    .setProcessModel(getProcessModel())
-                    .setStatusPublisher(getStatusPublisher());
+                    .setProfileClient(getUserProfileClient())
+                    .setProcessModel(getProcessModel());
 
             this.taskContext = taskContextBuilder.build();
             logger.info("Task " + this.taskName + " initialized");
@@ -486,6 +499,14 @@ public abstract class AiravataTask extends AbstractTask {
         return skipTaskStatusPublish;
     }
 
+    public boolean isForceRunTask() {
+        return forceRunTask;
+    }
+
+    public void setForceRunTask(boolean forceRunTask) {
+        this.forceRunTask = forceRunTask;
+    }
+
     // TODO this is inefficient. Try to use a connection pool
     public static RegistryService.Client getRegistryServiceClient() {
         try {
@@ -494,6 +515,16 @@ public abstract class AiravataTask extends AbstractTask {
             return RegistryServiceClientFactory.createRegistryClient(serverHost, serverPort);
         } catch (RegistryServiceException|ApplicationSettingsException e) {
             throw new RuntimeException("Unable to create registry client...", e);
+        }
+    }
+
+    public static UserProfileService.Client getUserProfileClient() {
+        try {
+            final int serverPort = Integer.parseInt(ServerSettings.getProfileServiceServerPort());
+            final String serverHost = ServerSettings.getProfileServiceServerHost();
+            return ProfileServiceClientFactory.createUserProfileServiceClient(serverHost, serverPort);
+        } catch (UserProfileServiceException | ApplicationSettingsException e) {
+            throw new RuntimeException("Unable to create profile service client...", e);
         }
     }
 }

@@ -1,4 +1,4 @@
-/*
+/**
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -16,9 +16,7 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
-
 package org.apache.airavata.service.profile.iam.admin.services.core.impl;
 
 import org.apache.airavata.common.exception.ApplicationSettingsException;
@@ -624,6 +622,36 @@ public class TenantManagementKeycloakImpl implements TenantManagementInterface {
     }
 
     @Override
+    public boolean deleteUser(String accessToken, String tenantId, String username) throws IamAdminServicesException {
+        Keycloak client = null;
+        try{
+            client = TenantManagementKeycloakImpl.getClient(ServerSettings.getIamServerUrl(), tenantId, accessToken);
+            UserRepresentation userRepresentation = getUserByUsername(client, tenantId, username);
+            if(userRepresentation != null)
+            {
+                client.realm(tenantId).users().delete(userRepresentation.getId());
+                return true;
+            }else{
+                throw new IamAdminServicesException("User [" + username + "] wasn't found in Keycloak!");
+            }
+        } catch (ApplicationSettingsException ex) {
+            logger.error("Error getting values from property file, reason: " + ex.getMessage(), ex);
+            IamAdminServicesException exception = new IamAdminServicesException();
+            exception.setMessage("Error getting values from property file, reason " + ex.getMessage());
+            throw exception;
+        } catch (Exception ex){
+            logger.error("Error deleting user in keycloak server, reason: " + ex.getMessage(), ex);
+            IamAdminServicesException exception = new IamAdminServicesException();
+            exception.setMessage("Error deleting user in keycloak server, reason: " + ex.getMessage());
+            throw exception;
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
+    }
+
+    @Override
     public boolean addRoleToUser(PasswordCredential realmAdminCreds, String tenantId, String username, String roleName) throws IamAdminServicesException {
 
         Keycloak client = null;
@@ -740,16 +768,12 @@ public class TenantManagementKeycloakImpl implements TenantManagementInterface {
         Keycloak client = null;
         try{
             client = TenantManagementKeycloakImpl.getClient(ServerSettings.getIamServerUrl(), tenantId, realmAdminCreds);
-            List<UserRepresentation> userRepresentationList = client.realm(tenantId).users().search(username,
-                    null,
-                    null,
-                    null,
-                    0, 1);
-            if (userRepresentationList.isEmpty()) {
+            UserRepresentation userRepresentation = getUserByUsername(client, tenantId, username);
+            if (userRepresentation == null) {
                 logger.warn("No Keycloak user found for username [" + username + "] in tenant [" + tenantId + "].");
                 return null;
             }
-            UserResource retrievedUser = client.realm(tenantId).users().get(userRepresentationList.get(0).getId());
+            UserResource retrievedUser = client.realm(tenantId).users().get(userRepresentation.getId());
             return retrievedUser.roles().realmLevel().listAll()
                     .stream()
                     .map(roleRepresentation -> roleRepresentation.getName())

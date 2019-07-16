@@ -20,7 +20,6 @@
 
 ---
 #airavata_django_git_branch: "simccs"
-doc_root_dir: "/data/portals/django-saver-x"
 vhost_servername: "beta.saver-x.scigap.org"
 vhost_ssl: true
 # sudo certbot --apache certonly -d django.simccs.scigap.org
@@ -42,13 +41,13 @@ auth_options:
 
 gateway_id: "saver-x"
 experiment_data_dir: "{{ user_data_dir }}/django-saver-x"
+gateway_data_store_ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCXm3BdHBlCa4xX2dgq5NNONElxAla4ijczVnEG+NtxMM6H6joasxAUAlhAKZ4752T8bYGMopKELVKWzhiNELgsOitQcXODh27eAbQ0/DXDy9EEMYYTLzEzj89lpaHjh1HK1BrVCtfhnmHDr7nczQ2ywHroaKKTXfMt8AA0XqUF68bcVxAiqD2LiEFlSOq3ebLpqcD0188gWKT1T1BG1xhiUO+8XyDAdBnFqudGAkvQeTDhODSkVuD+kWZwj6/bfI9YHMqr8hXA6HpRrIrPr3hE6BUYci8y8gmfyJ9oLTo+0gMFzer8K/BMVU+bKZwSTtUZ0Xbr7wf28OH4wuzrhQd3"
 
 portal_email_host: "smtp.gmail.com"
 portal_email_port: 587
 portal_email_tls: true
 portal_email_username: "pga.airavata@gmail.com"
 portal_email_password: "{{ vault_portal_email_password }}"
-admin_emails: "[('sgrc-iu-group@iu.edu')]"
 portal_server_email: "{{ portal_email_username }}"
 portal_title: "Saver-X Gateway"
 ...

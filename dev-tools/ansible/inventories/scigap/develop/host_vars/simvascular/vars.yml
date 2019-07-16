@@ -19,7 +19,6 @@
 #
 
 ---
-doc_root_dir: "/data/portals/django-simvascular"
 vhost_servername: "beta.gateway.simvascular.org"
 vhost_ssl: True
 ssl_certificate_file: "/etc/letsencrypt/live/beta.gateway.simvascular.org/cert.pem"
@@ -40,13 +39,13 @@ auth_options:
 
 gateway_id: "simvascular"
 experiment_data_dir: "{{ user_data_dir }}/simvascular"
+# gateway_data_store_ssh_public_key: "TODO"
 
 portal_email_host: "smtp.gmail.com"
 portal_email_port: 587
 portal_email_tls: true
 portal_email_username: "pga.airavata@gmail.com"
 portal_email_password: "{{ vault_portal_email_password }}"
-admin_emails: "[('SGRC Group', 'sgrc-iu-group@iu.edu')]"
 portal_server_email: "{{ portal_email_username }}"
 portal_title: "Simvascular Gateway"
 

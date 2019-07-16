@@ -203,71 +203,78 @@ public class AiravataServerHandler implements Airavata.Iface {
                 Domain domain = new Domain();
                 domain.setDomainId(ServerSettings.getDefaultUserGateway());
                 domain.setName(ServerSettings.getDefaultUserGateway());
-                domain.setDescription("Domain entry for " + domain.name);
+                domain.setDescription("Domain entry for " + domain.getName());
                 client.createDomain(domain);
 
                 User user = new User();
-                user.setDomainId(domain.domainId);
+                user.setDomainId(domain.getDomainId());
                 user.setUserId(ServerSettings.getDefaultUser() + "@" + ServerSettings.getDefaultUserGateway());
                 user.setUserName(ServerSettings.getDefaultUser());
                 client.createUser(user);
 
                 //Creating Entity Types for each domain
                 EntityType entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId + ":PROJECT");
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId() + ":PROJECT");
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName("PROJECT");
                 entityType.setDescription("Project entity type");
                 client.createEntityType(entityType);
 
                 entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId + ":EXPERIMENT");
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId() + ":EXPERIMENT");
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName("EXPERIMENT");
                 entityType.setDescription("Experiment entity type");
                 client.createEntityType(entityType);
 
                 entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId + ":FILE");
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId() + ":FILE");
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName("FILE");
                 entityType.setDescription("File entity type");
                 client.createEntityType(entityType);
 
                 entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId+":"+ResourceType.APPLICATION_DEPLOYMENT.name());
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId()+":"+ResourceType.APPLICATION_DEPLOYMENT.name());
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName("APPLICATION-DEPLOYMENT");
                 entityType.setDescription("Application Deployment entity type");
                 client.createEntityType(entityType);
 
                 entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId+":"+ResourceType.GROUP_RESOURCE_PROFILE.name());
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId()+":"+ResourceType.GROUP_RESOURCE_PROFILE.name());
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName(ResourceType.GROUP_RESOURCE_PROFILE.name());
                 entityType.setDescription("Group Resource Profile entity type");
                 client.createEntityType(entityType);
 
                 entityType = new EntityType();
-                entityType.setEntityTypeId(domain.domainId+":"+ResourceType.CREDENTIAL_TOKEN.name());
-                entityType.setDomainId(domain.domainId);
+                entityType.setEntityTypeId(domain.getDomainId()+":"+ResourceType.CREDENTIAL_TOKEN.name());
+                entityType.setDomainId(domain.getDomainId());
                 entityType.setName(ResourceType.CREDENTIAL_TOKEN.name());
                 entityType.setDescription("Credential Store Token entity type");
                 client.createEntityType(entityType);
 
                 //Creating Permission Types for each domain
                 PermissionType permissionType = new PermissionType();
-                permissionType.setPermissionTypeId(domain.domainId + ":READ");
-                permissionType.setDomainId(domain.domainId);
+                permissionType.setPermissionTypeId(domain.getDomainId() + ":READ");
+                permissionType.setDomainId(domain.getDomainId());
                 permissionType.setName("READ");
                 permissionType.setDescription("Read permission type");
                 client.createPermissionType(permissionType);
 
                 permissionType = new PermissionType();
-                permissionType.setPermissionTypeId(domain.domainId + ":WRITE");
-                permissionType.setDomainId(domain.domainId);
+                permissionType.setPermissionTypeId(domain.getDomainId() + ":WRITE");
+                permissionType.setDomainId(domain.getDomainId());
                 permissionType.setName("WRITE");
                 permissionType.setDescription("Write permission type");
+                client.createPermissionType(permissionType);
+
+                permissionType = new PermissionType();
+                permissionType.setPermissionTypeId(domain.getDomainId() + ":MANAGE_SHARING");
+                permissionType.setDomainId(domain.getDomainId());
+                permissionType.setName("MANAGE_SHARING");
+                permissionType.setDescription("Sharing permission type");
                 client.createPermissionType(permissionType);
             }
             sharingClientPool.returnResource(client);
@@ -281,9 +288,7 @@ public class AiravataServerHandler implements Airavata.Iface {
      * Query Airavata to fetch the API version
      */
     @Override
-    public String getAPIVersion() throws InvalidRequestException, AiravataClientException,
-            AiravataSystemException, TException {
-
+    public String getAPIVersion() throws TException {
         return airavata_apiConstants.AIRAVATA_API_VERSION;
     }
 
@@ -324,58 +329,65 @@ public class AiravataServerHandler implements Airavata.Iface {
             Domain domain = new Domain();
             domain.setDomainId(gateway.getGatewayId());
             domain.setName(gateway.getGatewayName());
-            domain.setDescription("Domain entry for " + domain.name);
+            domain.setDescription("Domain entry for " + domain.getName());
             sharingClient.createDomain(domain);
 
             //Creating Entity Types for each domain
             EntityType entityType = new EntityType();
-            entityType.setEntityTypeId(domain.domainId+":PROJECT");
-            entityType.setDomainId(domain.domainId);
+            entityType.setEntityTypeId(domain.getDomainId()+":PROJECT");
+            entityType.setDomainId(domain.getDomainId());
             entityType.setName("PROJECT");
             entityType.setDescription("Project entity type");
             sharingClient.createEntityType(entityType);
 
             entityType = new EntityType();
-            entityType.setEntityTypeId(domain.domainId+":EXPERIMENT");
-            entityType.setDomainId(domain.domainId);
+            entityType.setEntityTypeId(domain.getDomainId()+":EXPERIMENT");
+            entityType.setDomainId(domain.getDomainId());
             entityType.setName("EXPERIMENT");
             entityType.setDescription("Experiment entity type");
             sharingClient.createEntityType(entityType);
 
             entityType = new EntityType();
-            entityType.setEntityTypeId(domain.domainId+":FILE");
-            entityType.setDomainId(domain.domainId);
+            entityType.setEntityTypeId(domain.getDomainId()+":FILE");
+            entityType.setDomainId(domain.getDomainId());
             entityType.setName("FILE");
             entityType.setDescription("File entity type");
             sharingClient.createEntityType(entityType);
 
             entityType = new EntityType();
-            entityType.setEntityTypeId(domain.domainId+":"+ResourceType.APPLICATION_DEPLOYMENT.name());
-            entityType.setDomainId(domain.domainId);
+            entityType.setEntityTypeId(domain.getDomainId()+":"+ResourceType.APPLICATION_DEPLOYMENT.name());
+            entityType.setDomainId(domain.getDomainId());
             entityType.setName("APPLICATION-DEPLOYMENT");
             entityType.setDescription("Application Deployment entity type");
             sharingClient.createEntityType(entityType);
 
             entityType = new EntityType();
-            entityType.setEntityTypeId(domain.domainId+":"+ResourceType.GROUP_RESOURCE_PROFILE.name());
-            entityType.setDomainId(domain.domainId);
+            entityType.setEntityTypeId(domain.getDomainId()+":"+ResourceType.GROUP_RESOURCE_PROFILE.name());
+            entityType.setDomainId(domain.getDomainId());
             entityType.setName(ResourceType.GROUP_RESOURCE_PROFILE.name());
             entityType.setDescription("Group Resource Profile entity type");
             sharingClient.createEntityType(entityType);
 
             //Creating Permission Types for each domain
             PermissionType permissionType = new PermissionType();
-            permissionType.setPermissionTypeId(domain.domainId+":READ");
-            permissionType.setDomainId(domain.domainId);
+            permissionType.setPermissionTypeId(domain.getDomainId()+":READ");
+            permissionType.setDomainId(domain.getDomainId());
             permissionType.setName("READ");
             permissionType.setDescription("Read permission type");
             sharingClient.createPermissionType(permissionType);
 
             permissionType = new PermissionType();
-            permissionType.setPermissionTypeId(domain.domainId+":WRITE");
-            permissionType.setDomainId(domain.domainId);
+            permissionType.setPermissionTypeId(domain.getDomainId()+":WRITE");
+            permissionType.setDomainId(domain.getDomainId());
             permissionType.setName("WRITE");
             permissionType.setDescription("Write permission type");
+            sharingClient.createPermissionType(permissionType);
+
+            permissionType = new PermissionType();
+            permissionType.setPermissionTypeId(domain.getDomainId()+":MANAGE_SHARING");
+            permissionType.setDomainId(domain.getDomainId());
+            permissionType.setName("MANAGE_SHARING");
+            permissionType.setDescription("Sharing permission type");
             sharingClient.createPermissionType(permissionType);
 
             registryClientPool.returnResource(registryClient);
@@ -770,7 +782,7 @@ public class AiravataServerHandler implements Airavata.Iface {
             filters.add(searchCriteria);
             List<String> accessibleTokenIds = sharingClient.searchEntities(gatewayId, userName + "@" + gatewayId, filters, 0, -1)
                     .stream()
-                    .map(p -> p.entityId)
+                    .map(p -> p.getEntityId())
                     .collect(Collectors.toList());
             List<CredentialSummary> credentialSummaries = csClient.getAllCredentialSummaries(type, accessibleTokenIds, gatewayId);
             csClientPool.returnResource(csClient);
@@ -1066,7 +1078,7 @@ public class AiravataServerHandler implements Airavata.Iface {
                 filters.add(searchCriteria);
                 sharingClient.searchEntities(authzToken.getClaimsMap().get(Constants.GATEWAY_ID),
                         userName + "@" + gatewayId, filters, 0, -1).stream().forEach(p -> accessibleProjectIds
-                        .add(p.entityId));
+                        .add(p.getEntityId()));
                 List<Project> result;
                 if (accessibleProjectIds.isEmpty()) {
                     result = Collections.emptyList();
@@ -1133,7 +1145,7 @@ public class AiravataServerHandler implements Airavata.Iface {
                 searchCriteria.setValue(gatewayId + ":PROJECT");
                 sharingFilters.add(searchCriteria);
                 sharingClient.searchEntities(authzToken.getClaimsMap().get(Constants.GATEWAY_ID),
-                        userName + "@" + gatewayId, sharingFilters, 0, -1).stream().forEach(e -> accessibleProjIds.add(e.entityId));
+                        userName + "@" + gatewayId, sharingFilters, 0, -1).stream().forEach(e -> accessibleProjIds.add(e.getEntityId()));
                 if (accessibleProjIds.isEmpty()) {
                     result = Collections.emptyList();
                 } else {
@@ -1189,7 +1201,7 @@ public class AiravataServerHandler implements Airavata.Iface {
                 searchCriteria.setValue(gatewayId + ":EXPERIMENT");
                 sharingFilters.add(searchCriteria);
                 sharingClient.searchEntities(authzToken.getClaimsMap().get(Constants.GATEWAY_ID),
-                        userName + "@" + gatewayId, sharingFilters, 0, -1).forEach(e -> accessibleExpIds.add(e.entityId));
+                        userName + "@" + gatewayId, sharingFilters, 0, -1).forEach(e -> accessibleExpIds.add(e.getEntityId()));
             }
             List<ExperimentSummaryModel> result = regClient.searchExperiments(gatewayId, userName, accessibleExpIds, filters, limit, offset);
             registryClientPool.returnResource(regClient);
@@ -1227,7 +1239,29 @@ public class AiravataServerHandler implements Airavata.Iface {
         RegistryService.Client regClient = registryClientPool.getResource();
         SharingRegistryService.Client sharingClient = sharingClientPool.getResource();
         try {
-            ExperimentStatistics result = regClient.getExperimentStatistics(gatewayId, fromTime, toTime, userName, applicationName, resourceHostName);
+            // Find accessible experiments in date range
+            List<String> accessibleExpIds = new ArrayList<>();
+            List<SearchCriteria> sharingFilters = new ArrayList<>();
+            SearchCriteria entityTypeCriteria = new SearchCriteria();
+            entityTypeCriteria.setSearchField(EntitySearchField.ENTITY_TYPE_ID);
+            entityTypeCriteria.setSearchCondition(SearchCondition.EQUAL);
+            entityTypeCriteria.setValue(gatewayId + ":EXPERIMENT");
+            sharingFilters.add(entityTypeCriteria);
+            SearchCriteria fromCreatedTimeCriteria = new SearchCriteria();
+            fromCreatedTimeCriteria.setSearchField(EntitySearchField.CREATED_TIME);
+            fromCreatedTimeCriteria.setSearchCondition(SearchCondition.GTE);
+            fromCreatedTimeCriteria.setValue(Long.toString(fromTime));
+            sharingFilters.add(fromCreatedTimeCriteria);
+            SearchCriteria toCreatedTimeCriteria = new SearchCriteria();
+            toCreatedTimeCriteria.setSearchField(EntitySearchField.CREATED_TIME);
+            toCreatedTimeCriteria.setSearchCondition(SearchCondition.LTE);
+            toCreatedTimeCriteria.setValue(Long.toString(toTime));
+            sharingFilters.add(toCreatedTimeCriteria);
+            String userId = authzToken.getClaimsMap().get(Constants.USER_NAME);
+            sharingClient.searchEntities(authzToken.getClaimsMap().get(Constants.GATEWAY_ID),
+                    userId + "@" + gatewayId, sharingFilters, 0, -1).forEach(e -> accessibleExpIds.add(e.getEntityId()));
+
+            ExperimentStatistics result = regClient.getExperimentStatistics(gatewayId, fromTime, toTime, userName, applicationName, resourceHostName, accessibleExpIds);
             registryClientPool.returnResource(regClient);
             sharingClientPool.returnResource(sharingClient);
             return result;
@@ -2331,7 +2365,7 @@ public class AiravataServerHandler implements Airavata.Iface {
                 permissionTypeFilter.setValue(gatewayId + ":" + ResourcePermissionType.READ);
                 sharingFilters.add(permissionTypeFilter);
                 sharingClient.searchEntities(authzToken.getClaimsMap().get(Constants.GATEWAY_ID),
-                        userName + "@" + gatewayId, sharingFilters, 0, -1).forEach(a -> accessibleAppDeploymentIds.add(a.entityId));
+                        userName + "@" + gatewayId, sharingFilters, 0, -1).forEach(a -> accessibleAppDeploymentIds.add(a.getEntityId()));
             }
             List<String> accessibleComputeResourceIds = new ArrayList<>();
             List<GroupResourceProfile> groupResourceProfileList = getGroupResourceList(authzToken, gatewayId);
@@ -2571,7 +2605,7 @@ public class AiravataServerHandler implements Airavata.Iface {
                 permissionTypeFilter.setValue(gatewayId + ":" + permissionType.name());
                 sharingFilters.add(permissionTypeFilter);
                 sharingClient.searchEntities(authzToken.getClaimsMap().get(Constants.GATEWAY_ID),
-                        userName + "@" + gatewayId, sharingFilters, 0, -1).forEach(a -> accessibleAppDeploymentIds.add(a.entityId));
+                        userName + "@" + gatewayId, sharingFilters, 0, -1).forEach(a -> accessibleAppDeploymentIds.add(a.getEntityId()));
             }
             List<String> accessibleComputeResourceIds = new ArrayList<>();
             List<GroupResourceProfile> groupResourceProfileList = getGroupResourceList(authzToken, gatewayId);
@@ -2671,7 +2705,7 @@ public class AiravataServerHandler implements Airavata.Iface {
             permissionTypeFilter.setValue(gatewayId + ":" + ResourcePermissionType.READ);
             sharingFilters.add(permissionTypeFilter);
             sharingClient.searchEntities(gatewayId, userName + "@" + gatewayId, sharingFilters, 0, -1)
-                    .forEach(a -> accessibleAppDeploymentIds.add(a.entityId));
+                    .forEach(a -> accessibleAppDeploymentIds.add(a.getEntityId()));
 
             List<ApplicationDeploymentDescription> result = regClient.getAccessibleApplicationDeploymentsForAppModule(
                     gatewayId, appModuleId, accessibleAppDeploymentIds, accessibleComputeResourceIds);
@@ -5013,8 +5047,8 @@ public class AiravataServerHandler implements Airavata.Iface {
         RegistryService.Client regClient = registryClientPool.getResource();
         SharingRegistryService.Client sharingClient = sharingClientPool.getResource();
         try {
-            if (!userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER)) {
-                throw new AuthorizationException("User is not allowed to change sharing because the user is not the resource owner.");
+            if (!userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER) && !userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.MANAGE_SHARING)) {
+                throw new AuthorizationException("User is not allowed to change sharing because the user is either not the resource owner or does not have access to share the resource");
             }
             for(Map.Entry<String, ResourcePermissionType> userPermission : userPermissionList.entrySet()){
                 String gatewayId = authzToken.getClaimsMap().get(Constants.GATEWAY_ID);
@@ -5024,6 +5058,13 @@ public class AiravataServerHandler implements Airavata.Iface {
                 else if(userPermission.getValue().equals(ResourcePermissionType.READ))
                     sharingClient.shareEntityWithUsers(gatewayId, resourceId,
                             Arrays.asList(userPermission.getKey()), authzToken.getClaimsMap().get(Constants.GATEWAY_ID) + ":" + "READ", true);
+                else if(userPermission.getValue().equals(ResourcePermissionType.MANAGE_SHARING)) {
+                    if (userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER))
+                        sharingClient.shareEntityWithUsers(gatewayId, resourceId,
+                                Arrays.asList(userPermission.getKey()), authzToken.getClaimsMap().get(Constants.GATEWAY_ID) + ":" + "MANAGE_SHARING", true);
+                    else
+                        throw new AuthorizationException("User is not allowed to grant sharing permission because the user is not the resource owner.");
+                }
                 else {
                     logger.error("Invalid ResourcePermissionType : " + userPermission.getValue().toString());
                     throw new AiravataClientException(AiravataErrorType.UNSUPPORTED_OPERATION);
@@ -5051,8 +5092,8 @@ public class AiravataServerHandler implements Airavata.Iface {
         RegistryService.Client regClient = registryClientPool.getResource();
         SharingRegistryService.Client sharingClient = sharingClientPool.getResource();
         try {
-            if (!userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER)) {
-                throw new AuthorizationException("User is not allowed to change sharing because the user is not the resource owner.");
+            if (!userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER) && !userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.MANAGE_SHARING)) {
+                throw new AuthorizationException("User is not allowed to change sharing because the user is either not the resource owner or does not have access to share the resource");
             }
             for(Map.Entry<String, ResourcePermissionType> groupPermission : groupPermissionList.entrySet()){
                 String gatewayId = authzToken.getClaimsMap().get(Constants.GATEWAY_ID);
@@ -5062,6 +5103,13 @@ public class AiravataServerHandler implements Airavata.Iface {
                 else if(groupPermission.getValue().equals(ResourcePermissionType.READ))
                     sharingClient.shareEntityWithGroups(gatewayId, resourceId,
                             Arrays.asList(groupPermission.getKey()), authzToken.getClaimsMap().get(Constants.GATEWAY_ID) + ":" + "READ", true);
+                else if(groupPermission.getValue().equals(ResourcePermissionType.MANAGE_SHARING)){
+                    if(userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER))
+                        sharingClient.shareEntityWithGroups(gatewayId, resourceId,
+                                Arrays.asList(groupPermission.getKey()), authzToken.getClaimsMap().get(Constants.GATEWAY_ID) + ":" + "MANAGE_SHARING", true);
+                    else
+                        throw new AuthorizationException("User is not allowed to grant sharing permission because the user is not the resource owner.");
+                }
                 else {
                     logger.error("Invalid ResourcePermissionType : " + groupPermission.getValue().toString());
                     throw new AiravataClientException(AiravataErrorType.UNSUPPORTED_OPERATION);
@@ -5088,8 +5136,8 @@ public class AiravataServerHandler implements Airavata.Iface {
         RegistryService.Client regClient = registryClientPool.getResource();
         SharingRegistryService.Client sharingClient = sharingClientPool.getResource();
         try {
-            if (!userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER)) {
-                throw new AuthorizationException("User is not allowed to change sharing because the user is not the resource owner.");
+            if (!userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER) && !userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.MANAGE_SHARING)) {
+                throw new AuthorizationException("User is not allowed to change sharing because the user is either not the resource owner or does not have access to share the resource");
             }
             for(Map.Entry<String, ResourcePermissionType> userPermission : userPermissionList.entrySet()){
                 String gatewayId = authzToken.getClaimsMap().get(Constants.GATEWAY_ID);
@@ -5099,6 +5147,13 @@ public class AiravataServerHandler implements Airavata.Iface {
                 else if(userPermission.getValue().equals(ResourcePermissionType.READ))
                     sharingClient.revokeEntitySharingFromUsers(gatewayId, resourceId,
                             Arrays.asList(userPermission.getKey()), authzToken.getClaimsMap().get(Constants.GATEWAY_ID) + ":" + "READ");
+                else if(userPermission.getValue().equals(ResourcePermissionType.MANAGE_SHARING)){
+                    if (userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER))
+                        sharingClient.revokeEntitySharingFromUsers(gatewayId, resourceId,
+                                Arrays.asList(userPermission.getKey()), authzToken.getClaimsMap().get(Constants.GATEWAY_ID) + ":" + "MANAGE_SHARING");
+                    else
+                        throw new AuthorizationException("User is not allowed to change sharing permission because the user is not the resource owner.");
+                }
                 else {
                     logger.error("Invalid ResourcePermissionType : " + userPermission.getValue().toString());
                     throw new AiravataClientException(AiravataErrorType.UNSUPPORTED_OPERATION);
@@ -5127,8 +5182,8 @@ public class AiravataServerHandler implements Airavata.Iface {
         SharingRegistryService.Client sharingClient = sharingClientPool.getResource();
         final String gatewayId = authzToken.getClaimsMap().get(Constants.GATEWAY_ID);
         try {
-            if (!userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER)) {
-                throw new AuthorizationException("User is not allowed to change sharing because the user is not the resource owner.");
+            if (!userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER) && !userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.MANAGE_SHARING)) {
+                throw new AuthorizationException("User is not allowed to change sharing because the user is either not the resource owner or does not have access to share the resource");
             }
             // For certain resource types, restrict them from being unshared with admin groups
             ResourceType resourceType = getResourceType(sharingClient, gatewayId, resourceId);
@@ -5146,6 +5201,10 @@ public class AiravataServerHandler implements Airavata.Iface {
                         && groupPermissionList.get(gatewayGroups.getReadOnlyAdminsGroupId()).equals(ResourcePermissionType.READ)) {
                     throw new Exception("Not allowed to remove Read Only Admins group's READ access.");
                 }
+                if (groupPermissionList.containsKey(gatewayGroups.getAdminsGroupId())
+                        && groupPermissionList.get(gatewayGroups.getAdminsGroupId()).equals(ResourcePermissionType.MANAGE_SHARING)) {
+                    throw new Exception("Not allowed to remove Admins group's SHARING access.");
+                }
             }
             for(Map.Entry<String, ResourcePermissionType> groupPermission : groupPermissionList.entrySet()){
                 if(groupPermission.getValue().equals(ResourcePermissionType.WRITE))
@@ -5154,6 +5213,13 @@ public class AiravataServerHandler implements Airavata.Iface {
                 else if(groupPermission.getValue().equals(ResourcePermissionType.READ))
                     sharingClient.revokeEntitySharingFromUsers(gatewayId, resourceId,
                             Arrays.asList(groupPermission.getKey()), gatewayId + ":" + "READ");
+                else if(groupPermission.getValue().equals(ResourcePermissionType.MANAGE_SHARING)){
+                    if(userHasAccessInternal(sharingClient, authzToken, resourceId, ResourcePermissionType.OWNER))
+                        sharingClient.revokeEntitySharingFromUsers(gatewayId, resourceId,
+                                Arrays.asList(groupPermission.getKey()), gatewayId + ":" + "MANAGE_SHARING");
+                    else
+                        throw new AuthorizationException("User is not allowed to change sharing because the user is not the resource owner");
+                }
                 else {
                     logger.error("Invalid ResourcePermissionType : " + groupPermission.getValue().toString());
                     throw new AiravataClientException(AiravataErrorType.UNSUPPORTED_OPERATION);
@@ -5209,13 +5275,16 @@ public class AiravataServerHandler implements Airavata.Iface {
         try {
             HashSet<String> accessibleUsers = new HashSet<>();
             if (permissionType.equals(ResourcePermissionType.WRITE)) {
-                userListFunction.apply(sharingClient, ResourcePermissionType.WRITE).stream().forEach(u -> accessibleUsers.add(u.userId));
-                userListFunction.apply(sharingClient, ResourcePermissionType.OWNER).stream().forEach(u -> accessibleUsers.add(u.userId));
+                userListFunction.apply(sharingClient, ResourcePermissionType.WRITE).stream().forEach(u -> accessibleUsers.add(u.getUserId()));
+                userListFunction.apply(sharingClient, ResourcePermissionType.OWNER).stream().forEach(u -> accessibleUsers.add(u.getUserId()));
             } else if (permissionType.equals(ResourcePermissionType.READ)) {
-                userListFunction.apply(sharingClient, ResourcePermissionType.READ).stream().forEach(u -> accessibleUsers.add(u.userId));
-                userListFunction.apply(sharingClient, ResourcePermissionType.OWNER).stream().forEach(u -> accessibleUsers.add(u.userId));
+                userListFunction.apply(sharingClient, ResourcePermissionType.READ).stream().forEach(u -> accessibleUsers.add(u.getUserId()));
+                userListFunction.apply(sharingClient, ResourcePermissionType.OWNER).stream().forEach(u -> accessibleUsers.add(u.getUserId()));
             } else if (permissionType.equals(ResourcePermissionType.OWNER)) {
-                userListFunction.apply(sharingClient, ResourcePermissionType.OWNER).stream().forEach(u -> accessibleUsers.add(u.userId));
+                userListFunction.apply(sharingClient, ResourcePermissionType.OWNER).stream().forEach(u -> accessibleUsers.add(u.getUserId()));
+            } else if (permissionType.equals(ResourcePermissionType.MANAGE_SHARING)) {
+                userListFunction.apply(sharingClient, ResourcePermissionType.MANAGE_SHARING).stream().forEach(u -> accessibleUsers.add(u.getUserId()));
+                userListFunction.apply(sharingClient, ResourcePermissionType.OWNER).stream().forEach(u -> accessibleUsers.add(u.getUserId()));
             }
             registryClientPool.returnResource(regClient);
             sharingClientPool.returnResource(sharingClient);
@@ -5268,11 +5337,15 @@ public class AiravataServerHandler implements Airavata.Iface {
             if (permissionType.equals(ResourcePermissionType.WRITE)) {
                 groupListFunction.apply(sharingClient, ResourcePermissionType.WRITE)
                         .stream()
-                        .forEach(g -> accessibleGroups.add(g.groupId));
+                        .forEach(g -> accessibleGroups.add(g.getGroupId()));
             } else if (permissionType.equals(ResourcePermissionType.READ)) {
                 groupListFunction.apply(sharingClient, ResourcePermissionType.READ)
                         .stream()
-                        .forEach(g -> accessibleGroups.add(g.groupId));
+                        .forEach(g -> accessibleGroups.add(g.getGroupId()));
+            } else if (permissionType.equals(ResourcePermissionType.MANAGE_SHARING)) {
+                groupListFunction.apply(sharingClient, ResourcePermissionType.MANAGE_SHARING)
+                        .stream()
+                        .forEach(g -> accessibleGroups.add(g.getGroupId()));
             }
             registryClientPool.returnResource(regClient);
             sharingClientPool.returnResource(sharingClient);
@@ -5492,7 +5565,7 @@ public class AiravataServerHandler implements Airavata.Iface {
                 filters.add(searchCriteria);
                 sharingClient.searchEntities(authzToken.getClaimsMap().get(Constants.GATEWAY_ID),
                         userName + "@" + gatewayId, filters, 0, -1).stream().forEach(p -> accessibleGroupResProfileIds
-                        .add(p.entityId));
+                        .add(p.getEntityId()));
 
             }
             List<GroupResourceProfile> groupResourceProfileList = regClient.getGroupResourceList(gatewayId, accessibleGroupResProfileIds);
@@ -6008,6 +6081,8 @@ public class AiravataServerHandler implements Airavata.Iface {
                 hasAccess = hasOwnerAccess || sharingClient.userHasAccess(domainId, userId, entityId, domainId + ":" + ResourcePermissionType.WRITE);
             } else if (permissionType.equals(ResourcePermissionType.READ)) {
                 hasAccess = hasOwnerAccess || sharingClient.userHasAccess(domainId, userId, entityId, domainId + ":" + ResourcePermissionType.READ);
+            } else if (permissionType.equals(ResourcePermissionType.MANAGE_SHARING)) {
+                hasAccess = hasOwnerAccess || sharingClient.userHasAccess(domainId, userId, entityId, domainId + ":" + ResourcePermissionType.MANAGE_SHARING);
             } else if (permissionType.equals(ResourcePermissionType.OWNER)) {
                 hasAccess = hasOwnerAccess;
             }

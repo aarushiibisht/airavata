@@ -445,7 +445,7 @@ public class ServerSettings extends ApplicationSettings {
     }
 
     public static String getLocalDataLocation() {
-        return System.getProperty("java.io.tmpdir");
+        return getSetting(Constants.LOCAL_DATA_LOCATION, System.getProperty("java.io.tmpdir"));
     }
 
     public static Boolean isEnableSharing() throws ApplicationSettingsException {

@@ -1,4 +1,4 @@
-/*
+/**
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -16,9 +16,7 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
-
 package org.apache.airavata.service.profile.iam.admin.services.core.interfaces;
 
 import org.apache.airavata.model.credential.store.PasswordCredential;
@@ -165,6 +163,16 @@ public interface TenantManagementInterface {
      * @param userDetails
      */
     void updateUserProfile(String accessToken, String tenantId, String username, UserProfile userDetails) throws IamAdminServicesException;
+
+    /**
+     * Delete this user from the IAM service.
+     * @param accessToken
+     * @param tenantId
+     * @param username
+     * @return
+     * @throws IamAdminServicesException
+     */
+    boolean deleteUser(String accessToken, String tenantId, String username) throws IamAdminServicesException;
 
     /**
      * Add the given role to the user.

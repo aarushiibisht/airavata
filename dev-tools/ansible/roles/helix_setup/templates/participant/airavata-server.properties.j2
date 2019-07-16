@@ -29,6 +29,12 @@ credential.store.server.host={{ cred_store_server_host }}
 credential.store.server.port={{ cred_store_port }}
 
 ###########################################################################
+# Profile Server Configuration
+###########################################################################
+profile.service.server.host={{ profile_service_host }}
+profile.service.server.port={{ profile_service_port }}
+
+###########################################################################
 # Monitoring module Configuration
 ###########################################################################
 email.based.monitor.address={{ monitor_email_address }}
@@ -70,3 +76,10 @@ zookeeper.timeout=30000
 kafka.parsing.broker.url={{ parser_broker_url }}
 kafka.parser.topic={{ parser_broker_topic }}
 kafka.parsing.broker.publisher.id={{ parser_broker_publisher_id }}
+
+###########################################################################
+# Job Submission Task Level Configurations
+###########################################################################
+enable.realtime.monitor=False
+
+local.data.location={{ local_data_location }}

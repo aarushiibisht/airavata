@@ -46,19 +46,15 @@ include "../data-models/resource-catalog-models/data_movement_models.thrift"
 include "../data-models/replica-catalog-models/replica_catalog_models.thrift"
 include "../airavata-apis/airavata_errors.thrift"
 include "../airavata-apis/airavata_commons.thrift"
+include "../base-api/base_api.thrift"
 
 include "registry_api_errors.thrift"
 
 namespace java org.apache.airavata.registry.api
 
-const string REGISTRY_API_VERSION = "0.17.0"
+const string REGISTRY_API_VERSION = "0.18.0"
 
-service RegistryService {
-    /**
-       * Fetch Apache Registry API version
-       **/
-      string getAPIVersion()
-            throws (1: registry_api_errors.RegistryServiceException rse)
+service RegistryService extends base_api.BaseAPI {
 
      /**
      * Verify if User Exists within Airavata.
@@ -367,13 +363,16 @@ service RegistryService {
              * @param resourceHostName
              *       Hostname id substring with which to further filter statistics.
              *
+             * @param accessibleExpIds
+             *    Experiment IDs which are accessible to the current user.
              **/
             experiment_model.ExperimentStatistics getExperimentStatistics(1: required string gatewayId,
                                     2: required i64 fromTime,
                                     3: required i64 toTime,
                                     4: string userName,
                                     5: string applicationName,
-                                    6: string resourceHostName)
+                                    6: string resourceHostName,
+                                    7: required list<string> accessibleExpIds)
                         throws (1: registry_api_errors.RegistryServiceException rse)
 
 
@@ -764,9 +763,28 @@ service RegistryService {
            job_model.JobModel getJob(1: required string queryType, 2: required string id)
                        throws (1: registry_api_errors.RegistryServiceException rse)
 
+           /*
+           * queryType can be TASK_ID, PROCESS_ID or JOB_ID
+           *
+           */
+           list<job_model.JobModel> getJobs(1: required string queryType, 2: required string id)
+                                  throws (1: registry_api_errors.RegistryServiceException rse)
+
 
            list<application_io_models.OutputDataObjectType> getProcessOutputs (1: required string processId)
                        throws (1: registry_api_errors.RegistryServiceException rse)
+
+           /*
+           * Returns number of Helix workflows that are currently registered for the process id
+           */
+           list<process_model.ProcessWorkflow> getProcessWorkflows(1: required string processId)
+                       throws (1: registry_api_errors.RegistryServiceException rse)
+
+           /*
+           * Register a new Helix workflow to process
+           */
+           void addProcessWorkflow(1: required process_model.ProcessWorkflow processWorkflow)
+                        throws (1: registry_api_errors.RegistryServiceException rse)
 
            list<string> getProcessIds(1: required string experimentId)
                         throws (1: registry_api_errors.RegistryServiceException rse)

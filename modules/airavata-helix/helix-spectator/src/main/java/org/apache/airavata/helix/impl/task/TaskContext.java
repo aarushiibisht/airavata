@@ -46,12 +46,17 @@ import org.apache.airavata.model.data.movement.DataMovementProtocol;
 import org.apache.airavata.model.job.JobModel;
 import org.apache.airavata.model.process.ProcessModel;
 import org.apache.airavata.model.scheduling.ComputationalResourceSchedulingModel;
+import org.apache.airavata.model.security.AuthzToken;
 import org.apache.airavata.model.status.ProcessState;
 import org.apache.airavata.model.status.ProcessStatus;
 import org.apache.airavata.model.status.TaskState;
 import org.apache.airavata.model.status.TaskStatus;
 import org.apache.airavata.model.task.TaskModel;
+import org.apache.airavata.model.user.UserProfile;
 import org.apache.airavata.registry.api.RegistryService;
+import org.apache.airavata.service.profile.user.cpi.UserProfileService;
+import org.apache.airavata.service.security.AiravataSecurityManager;
+import org.apache.airavata.service.security.SecurityManagerFactory;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +82,7 @@ public class TaskContext {
 
     private Publisher statusPublisher;
     private RegistryService.Client registryClient;
+    private UserProfileService.Client profileClient;
 
     private String processId;
     private String gatewayId;
@@ -96,6 +102,7 @@ public class TaskContext {
     private GatewayResourceProfile gatewayResourceProfile;
     private UserResourceProfile userResourceProfile;
     private GroupResourceProfile groupResourceProfile;
+    private UserProfile userProfile;
 
     private StoragePreference gatewayStorageResourcePreference;
     private UserComputeResourcePreference userComputeResourcePreference;
@@ -115,6 +122,16 @@ public class TaskContext {
     private List<TaskModel> taskList;
     private Map<String, TaskModel> taskMap;
 
+    /**
+     * Note: process context property use lazy loading approach. In runtime you will see some properties as null
+     * unless you have access it previously. Once that property access using the api,it will be set to correct value.
+     */
+    private TaskContext(String processId, String gatewayId, String taskId) {
+        this.processId = processId;
+        this.gatewayId = gatewayId;
+        this.taskId = taskId;
+    }
+
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
@@ -133,6 +150,10 @@ public class TaskContext {
 
     public String getProcessId() {
         return processId;
+    }
+
+    public String getTaskId() {
+        return taskId;
     }
 
     public Publisher getStatusPublisher() {
@@ -315,7 +336,6 @@ public class TaskContext {
         }
         return jobSubmissionProtocol;
     }
-
     public void setJobSubmissionProtocol(JobSubmissionProtocol jobSubmissionProtocol) {
         this.jobSubmissionProtocol = jobSubmissionProtocol;
     }
@@ -411,10 +431,11 @@ public class TaskContext {
     }
 
     public TaskState getTaskState() {
-        if(getCurrentTaskModel().getTaskStatuses() != null)
+        if(getCurrentTaskModel() != null && getCurrentTaskModel().getTaskStatuses() != null) {
             return getCurrentTaskModel().getTaskStatuses().get(0).getState();
-        else
+        } else {
             return null;
+        }
     }
 
     public TaskStatus getTaskStatus() {
@@ -572,12 +593,37 @@ public class TaskContext {
         return registryClient;
     }
 
+    public UserProfileService.Client getProfileClient() {
+        return profileClient;
+    }
+
+    public void setProfileClient(UserProfileService.Client profileClient) {
+        this.profileClient = profileClient;
+    }
+
+    public UserProfile getUserProfile() throws TaskOnFailException {
+
+        if (this.userProfile == null) {
+            try {
+                AiravataSecurityManager securityManager = SecurityManagerFactory.getSecurityManager();
+                AuthzToken authzToken = securityManager.getUserManagementServiceAccountAuthzToken(getGatewayId());
+                this.userProfile = getProfileClient().getUserProfileById(authzToken, getProcessModel().getUserName(), getGatewayId());
+            } catch (Exception e) {
+                logger.error("Failed to fetch the user profile for user id " + processModel.getUserName(), e);
+                throw new TaskOnFailException("Failed to fetch the user profile for user id " + processModel.getUserName(), true, e);
+            }
+        }
+        return this.userProfile;
+    }
+
     private boolean isValid(String str) {
         return str != null && !str.trim().isEmpty();
     }
 
     public String getAllocationProjectNumber() {
-        if (isUseUserCRPref() &&
+        if (isValid(processModel.getProcessResourceSchedule().getOverrideAllocationProjectNumber())) {
+            return processModel.getProcessResourceSchedule().getOverrideAllocationProjectNumber();
+        } else if (isUseUserCRPref() &&
                 userComputeResourcePreference != null &&
                 userComputeResourcePreference.getAllocationProjectNumber() != null) {
             return userComputeResourcePreference.getAllocationProjectNumber();
@@ -701,7 +747,7 @@ public class TaskContext {
         private final String gatewayId;
         private final String taskId;
         private RegistryService.Client registryClient;
-        private Publisher statusPublisher;
+        private UserProfileService.Client profileClient;
         private ProcessModel processModel;
 
         @SuppressWarnings("WeakerAccess")
@@ -724,8 +770,8 @@ public class TaskContext {
             return this;
         }
 
-        public TaskContextBuilder setStatusPublisher(Publisher statusPublisher) {
-            this.statusPublisher = statusPublisher;
+        public TaskContextBuilder setProfileClient(UserProfileService.Client profileClient) {
+            this.profileClient = profileClient;
             return this;
         }
 
@@ -737,17 +783,11 @@ public class TaskContext {
             if (notValid(registryClient)) {
                 throwError("Invalid Registry Client");
             }
-            if (notValid(statusPublisher)) {
-                throwError("Invalid Status Publisher");
-            }
 
-            TaskContext ctx = new TaskContext();
+            TaskContext ctx = new TaskContext(processId, gatewayId, taskId);
             ctx.setRegistryClient(registryClient);
-            ctx.setStatusPublisher(statusPublisher);
             ctx.setProcessModel(processModel);
-            ctx.setTaskId(taskId);
-            ctx.setGatewayId(gatewayId);
-            ctx.setProcessId(processId);
+            ctx.setProfileClient(profileClient);
 
             ctx.setGroupComputeResourcePreference(registryClient.getGroupComputeResourcePreference(processModel.getComputeResourceId(),
                     processModel.getGroupResourceProfileId()));
@@ -758,27 +798,32 @@ public class TaskContext {
                     Optional.ofNullable(registryClient.getGatewayResourceProfile(gatewayId))
                             .orElseThrow(() -> new Exception("Invalid GatewayResourceProfile")));
 
+            logger.debug("Using storage resource preference for storage " + processModel.getStorageResourceId());
             ctx.setGatewayStorageResourcePreference(
                     Optional.ofNullable(registryClient.getGatewayStoragePreference(
                             gatewayId,
                             processModel.getStorageResourceId()))
                             .orElseThrow(() -> new Exception("Invalid Gateway StoragePreference")));
 
+            logger.debug("Using application deployment " + processModel.getApplicationDeploymentId());
             ctx.setApplicationDeploymentDescription(
                     Optional.ofNullable(registryClient.getApplicationDeployment(
                             processModel.getApplicationDeploymentId()))
                             .orElseThrow(() -> new Exception("Invalid Application Deployment")));
 
+            logger.debug("Using application interface " + processModel.getApplicationInterfaceId());
             ctx.setApplicationInterfaceDescription(
                     Optional.ofNullable(registryClient.getApplicationInterface(
                             processModel.getApplicationInterfaceId()))
                             .orElseThrow(() -> new Exception("Invalid Application Interface")));
 
+            logger.debug("Using compute resource " + ctx.getComputeResourceId());
             ctx.setComputeResourceDescription(
                     Optional.ofNullable(registryClient.getComputeResource(
                             ctx.getComputeResourceId()))
                             .orElseThrow(() -> new Exception("Invalid Compute Resource Description")));
 
+            logger.debug("Using storage resource " + ctx.getStorageResourceId());
             ctx.setStorageResourceDescription(
                     Optional.ofNullable(registryClient.getStorageResource(
                             ctx.getStorageResourceId()))
@@ -833,5 +878,4 @@ public class TaskContext {
         }
     }
 }
-
 
